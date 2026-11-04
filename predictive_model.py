@@ -2,11 +2,12 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-# 1. Load the merged master dataset
+
 df = pd.read_csv("ifnd_features_master.csv")
 
-# 2. Define feature columns (exclude metadata and target)
 exclude_cols = [
     "row_id",
     "text",
@@ -20,37 +21,66 @@ exclude_cols = [
 ]
 feature_cols = [c for c in df.columns if c not in exclude_cols]
 
-# Drop any rows with missing feature values
-df_model = df.dropna(subset=feature_cols + ["label_binary"])
+x = df[feature_cols]
+y = df["label_binary"]
 
-X = df_model[feature_cols]
-y = df_model["label_binary"]
 
-# 3. Split into train (80%) and test (20%) sets
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
+x_train, x_test, y_train, y_test = train_test_split(
+    x, y, test_size=0.2, random_state=42
 )
 
-# 4. Train Logistic Regression model
+#Train Logistic Regression model
 model = LogisticRegression(max_iter=1000, random_state=42)
-model.fit(X_train, y_train)
+model.fit(x_train, y_train)
 
-# 5. Evaluate accuracy and performance
-y_pred = model.predict(X_test)
+#Evaluate accuracy and performance
+y_pred = model.predict(x_test)
 acc = accuracy_score(y_test, y_pred)
 print(f"Model Classification Accuracy: {acc * 100:.2f}%\n")
 
 print("Classification Report:")
 print(classification_report(y_test, y_pred))
 
-# 6. Extract and save feature importance (coefficients)
 coef_df = pd.DataFrame(
     {"Feature": feature_cols, "Coefficient": model.coef_[0]}
 ).sort_values(by="Coefficient", ascending=False)
 
 coef_df.to_csv("model_coefficients.csv", index=False)
 print(
-    "\nFeature coefficients saved to model_coefficients.csv! Top predictive"
+    "\nTop predictive"
     " features:"
 )
 print(coef_df.to_string(index=False))
+
+
+
+plot_df = pd.read_csv("model_coefficients.csv").sort_values(
+    by="Coefficient", ascending=True
+)
+
+sns.set_theme(style="whitegrid")
+plt.figure(figsize=(10, max(6, len(plot_df) * 0.4)))
+
+colors = ["crimson" if c > 0 else "steelblue" for c in plot_df["Coefficient"]]
+plt.barh(
+    plot_df["Feature"],
+    plot_df["Coefficient"],
+    color=colors,
+    edgecolor="black",
+    alpha=0.85,
+)
+plt.axvline(x=0, color="black", linestyle="-", linewidth=1)
+
+plt.title(
+    "Logistic Regression Coefficients Across All Features\n(Red = Predicts"
+    " Fake | Blue = Predicts Real)",
+    fontsize=14,
+    fontweight="bold",
+    pad=15,
+)
+plt.xlabel("Standardized Coefficient Value (beta)", fontsize=12)
+plt.ylabel("Evaluated Feature", fontsize=12)
+
+plt.tight_layout()
+plt.savefig("coefficient_magnitude_all_features.png", dpi=300, bbox_inches="tight")
+plt.close()

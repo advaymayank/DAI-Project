@@ -72,3 +72,41 @@ summary_df = pd.DataFrame(results)
 summary_df.to_csv("univariate_summary_results.csv", index=False)
 print("Univariate analysis complete (No NumPy)! Saved to csv.")
 print(summary_df.to_string())
+
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
+
+# Load directly from the CSV you already saved
+plot_df = pd.read_csv("model_coefficients.csv").sort_values(
+    by="Coefficient", ascending=True
+)
+
+sns.set_theme(style="whitegrid")
+plt.figure(figsize=(10, max(6, len(plot_df) * 0.4)))
+
+colors = ["crimson" if c > 0 else "steelblue" for c in plot_df["Coefficient"]]
+plt.barh(
+    plot_df["Feature"],
+    plot_df["Coefficient"],
+    color=colors,
+    edgecolor="black",
+    alpha=0.85,
+)
+plt.axvline(x=0, color="black", linestyle="-", linewidth=1)
+
+plt.title(
+    "Logistic Regression Coefficients Across All Features\n(Red = Predicts"
+    " Fake | Blue = Predicts Real)",
+    fontsize=14,
+    fontweight="bold",
+    pad=15,
+)
+plt.xlabel("Standardized Coefficient Value (beta)", fontsize=12)
+plt.ylabel("Evaluated Feature", fontsize=12)
+
+plt.tight_layout()
+plt.savefig("coefficient_magnitude_all_features.png", dpi=300, bbox_inches="tight")
+plt.close()
+
+print("Saved full coefficient plot from CSV as 'coefficient_magnitude_all_features.png'")

@@ -5,7 +5,7 @@ import scipy.stats as stats
 import seaborn as sns
 
 print("Loading master dataset...")
-df = pd.read_csv("../data/ifnd_features_master.csv")
+df = pd.read_csv("ifnd_features_master.csv")
 
 ignore_cols = {
     "row_id",
