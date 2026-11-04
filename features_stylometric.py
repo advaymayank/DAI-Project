@@ -9,9 +9,8 @@ import re
 from common import load_clean
 def upper_ratio(text):
     return sum(c.isupper() for c in text) / max(len(text), 1) #added fallback in case of zero length
-def letter_freq(text,c):
-    c='e' 
-    return text.lower().count(c) / max(len(text.replace(" ", "")), 1) #added fallback in case of zero length
+def letter_freq(text, c='e'):
+    return text.lower().count(c) / max(len(text.replace(" ", "")), 1)
 def vowel_ratio(text):
     return sum(c in "aeiou" for c in text.lower()) / max(len(text), 1) #added fallback in case of zero length
 def all_caps_words(text):

@@ -2,7 +2,8 @@
 # pip install vaderSentiment textblob
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from textblob import TextBlob
-
+from common import tokenize
+from common import load_clean, tokenize
 _vader = SentimentIntensityAnalyzer()
 
 
